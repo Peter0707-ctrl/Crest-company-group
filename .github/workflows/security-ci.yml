@@ -1,0 +1,59 @@
+name: CREST Security CI & Red-Team Verification
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# Principle of least privilege for GITHUB_TOKEN
+permissions:
+  contents: read
+
+jobs:
+  security-audit-and-build:
+    name: Typecheck, Build, Secret Scan & 14-Check Red-Team Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Guard against committed secrets or vault files
+        run: |
+          if git ls-files | grep -E '(^server/data/|^server/backups/|\.secrets\.env$|BOOTSTRAP_CREDENTIALS\.txt$|\.db$|\.enc$|\.pem$|\.key$)'; then
+            echo "ERROR: Sensitive secret, database, or backup file is tracked in Git!"
+            exit 1
+          fi
+          if git grep -E 'CREST_MASTER_KEY=[0-9a-fA-F]{64}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY'; then
+            echo "ERROR: Hardcoded private key or master key detected in repository!"
+            exit 1
+          fi
+          echo "Secret hygiene check passed."
+
+      - name: Install dependencies cleanly
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=moderate
+
+      - name: TypeScript strict typecheck
+        run: npx tsc --noEmit
+
+      - name: Build production frontend bundle
+        run: npm run build
+
+      - name: Run live 14-check Red-Team Cryptographic Verification Suite
+        run: |
+          node server/server.mjs &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID || true" EXIT
+          sleep 2
+          npm run verify:security
+          npm run backup:verify

@@ -1,0 +1,31 @@
+{
+  "name": "crest-group-corporate-ecosystem",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server/server.mjs",
+    "build": "vite build",
+    "start:prod": "SERVE_STATIC=true node server/server.mjs",
+    "backup:create": "node server/backup.mjs create",
+    "backup:verify": "node server/backup.mjs verify",
+    "verify:security": "node server/verify-security.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.3"
+  }
+}

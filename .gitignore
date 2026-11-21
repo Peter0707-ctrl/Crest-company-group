@@ -1,0 +1,25 @@
+# Dependencies & Build Outputs
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Sensitive Server Secrets, Databases, Backups & Credentials (NEVER COMMIT)
+server/data/
+server/backups/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.enc
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+BOOTSTRAP_CREDENTIALS.txt
+
+# Logs & OS Files
+*.log
+.DS_Store
+Thumbs.db
